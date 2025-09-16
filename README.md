@@ -1,28 +1,43 @@
-# Email Automation with GitHub Actions
+# Email Automation with GitHub Actions & Copilot Integration
 
-This project implements automated email notifications using GitHub Actions. It provides multiple workflow examples for different use cases including daily reports, failure notifications, and weekly summaries.
+This project implements automated email notifications using GitHub Actions with integrated GitHub Copilot programming challenges. It provides comprehensive workflow examples for email automation and an AI-powered programming knowledge testing system.
 
 ## 🚀 Features
 
+### Email Automation
 - **Daily Email Reports**: Automated daily status emails
 - **Failure Notifications**: Instant alerts when workflows fail
 - **Weekly Summaries**: Comprehensive weekly activity reports
 - **Custom Email Scripts**: Flexible Node.js based email sending
 - **Multiple Triggers**: Schedule-based, push events, and manual triggers
 
+### 🤖 GitHub Copilot Integration
+- **Automated Programming Challenges**: Daily programming problems created and assigned to Copilot
+- **AI-Powered Solutions**: GitHub Copilot solves challenges autonomously in its GitHub Actions environment
+- **Solution Notifications**: Email alerts when Copilot delivers solutions via pull requests
+- **Multiple Difficulty Levels**: Basic, intermediate, and advanced programming challenges
+- **Comprehensive Learning**: Code review practice with AI-generated solutions
+
 ## 📁 Project Structure
 
 ```
 .github/
+├── ISSUE_TEMPLATE/
+│   └── programming-problem.md  # Template for programming challenges
 ├── scripts/
 │   └── send-email.mjs          # Custom Node.js email script
 └── workflows/
-    ├── email-automation.yml    # Basic daily email automation
-    ├── send-email.yml          # Node.js based email workflow
-    ├── failure-notification.yml # Workflow failure alerts
-    └── weekly-report.yml       # Weekly summary reports
+    ├── email-automation.yml           # Basic daily email automation
+    ├── send-email.yml                 # Node.js based email workflow
+    ├── failure-notification.yml       # Workflow failure alerts
+    ├── weekly-report.yml              # Weekly summary reports
+    ├── copilot-programming-challenge.yml    # Individual Copilot challenges
+    ├── daily-programming-challenge.yml      # Daily challenge sets
+    └── copilot-solution-monitor.yml         # Monitor Copilot solutions
 package.json                    # Node.js dependencies
 README.md                       # This file
+COPILOT-INTEGRATION.md         # Copilot setup and usage guide
+SETUP.md                       # Quick setup guide
 ```
 
 ## ⚙️ Setup Instructions
