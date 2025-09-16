@@ -21,6 +21,11 @@ on:
           - "3"
           - "4"
 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
 jobs:
   request-daily-problems:
     runs-on: ubuntu-latest

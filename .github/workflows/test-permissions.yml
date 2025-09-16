@@ -1,0 +1,155 @@
+name: Test Permissions
+
+on:
+  workflow_dispatch: # Manual trigger only
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  test-github-api:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Test GitHub API Access
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            console.log('Testing GitHub API access...');
+
+            // Test repository access
+            const { data: repo } = await github.rest.repos.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+            console.log('✅ Repository access: OK');
+            console.log(`Repository: ${repo.full_name}`);
+
+            // Test issue creation permissions
+            try {
+              const { data: issue } = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: 'Test Issue - Permission Check',
+                body: `## Permission Test Issue
+
+                This is a test issue created to verify GitHub API permissions.
+                
+                **Created by**: GitHub Actions workflow
+                **Date**: ${new Date().toISOString()}
+                **Purpose**: Verify issue creation permissions
+                
+                This issue will be automatically closed.`,
+                labels: ['test', 'permissions']
+              });
+              
+              console.log('✅ Issue creation: OK');
+              console.log(`Created issue #${issue.number}: ${issue.title}`);
+              
+              // Close the test issue immediately
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                state: 'closed'
+              });
+              
+              console.log('✅ Issue closure: OK');
+              console.log('Test issue closed successfully');
+              
+            } catch (error) {
+              console.error('❌ Issue creation failed:', error.message);
+              throw error;
+            }
+
+            console.log('🎉 All permission tests passed!');
+
+      - name: Send Success Notification
+        if: success()
+        uses: dawidd6/action-send-mail@v6
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "✅ GitHub API Permissions Test - SUCCESS"
+          html_body: |
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #28a745;">✅ Permission Test Successful!</h2>
+              <p>Great news! The GitHub API permissions have been configured correctly.</p>
+              
+              <div style="background-color: #d4edda; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #28a745;">
+                <h3>✅ Tests Passed</h3>
+                <ul>
+                  <li>Repository access: ✅ Working</li>
+                  <li>Issue creation: ✅ Working</li>
+                  <li>Issue management: ✅ Working</li>
+                  <li>GitHub API integration: ✅ Working</li>
+                </ul>
+              </div>
+              
+              <div style="background-color: #e1f5fe; padding: 15px; border-radius: 6px; margin: 20px 0;">
+                <h3>🚀 Ready for Copilot Integration</h3>
+                <p>Your workflows can now:</p>
+                <ul>
+                  <li>Create programming challenge issues</li>
+                  <li>Assign issues to @copilot</li>
+                  <li>Monitor pull requests and solutions</li>
+                  <li>Send email notifications</li>
+                </ul>
+              </div>
+              
+              <p style="margin-top: 30px; color: #586069; font-size: 12px;">
+                Repository: ${{ github.repository }}<br>
+                Test completed: ${new Date().toISOString()}<br>
+                You can now safely run the Copilot challenge workflows!
+              </p>
+            </div>
+          to: sean.esparagoza@gmail.com
+          from: GitHub API Test System
+
+      - name: Send Failure Notification
+        if: failure()
+        uses: dawidd6/action-send-mail@v6
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "❌ GitHub API Permissions Test - FAILED"
+          html_body: |
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #dc3545;">❌ Permission Test Failed</h2>
+              <p>The GitHub API permissions test encountered an error.</p>
+              
+              <div style="background-color: #f8d7da; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #dc3545;">
+                <h3>❌ Issue Detected</h3>
+                <p>The workflow couldn't access the GitHub API properly. This usually means:</p>
+                <ul>
+                  <li>GitHub token permissions are insufficient</li>
+                  <li>Repository settings need adjustment</li>
+                  <li>Workflow permissions block is missing</li>
+                </ul>
+              </div>
+              
+              <div style="background-color: #fff3cd; padding: 15px; border-radius: 6px; margin: 20px 0;">
+                <h3>🔧 Troubleshooting Steps</h3>
+                <p>1. Check the workflow logs in the Actions tab</p>
+                <p>2. Verify the permissions block in the workflow file</p>
+                <p>3. Ensure GitHub Actions are enabled for this repository</p>
+                <p>4. Check repository settings for API access</p>
+              </div>
+              
+              <p style="margin-top: 30px; color: #586069; font-size: 12px;">
+                Repository: ${{ github.repository }}<br>
+                Test failed: ${new Date().toISOString()}<br>
+                Please review the workflow logs for more details.
+              </p>
+            </div>
+          to: sean.esparagoza@gmail.com
+          from: GitHub API Test System
