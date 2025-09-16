@@ -1,23 +1,28 @@
-name: Daily Programming Challenge
+name: Daily Copilot Problem Generator
 
 on:
   schedule:
     - cron: "0 8 * * 1-5" # Weekdays at 8 AM UTC
   workflow_dispatch: # Manual trigger
     inputs:
-      challenge_set:
-        description: "Which challenge set to create"
-        required: true
-        default: "basic"
+      topics:
+        description: "Comma-separated programming topics for Copilot to explore"
+        required: false
+        default: "JavaScript arrays, data manipulation, algorithms"
+        type: string
+      count:
+        description: "Number of problems to request"
+        required: false
+        default: "2"
         type: choice
         options:
-          - basic
-          - intermediate
-          - advanced
-          - all
+          - "1"
+          - "2"
+          - "3"
+          - "4"
 
 jobs:
-  create-daily-challenges:
+  request-daily-problems:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -29,242 +34,155 @@ jobs:
           echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
           echo "day=$(date +'%A')" >> $GITHUB_OUTPUT
 
-      - name: Create Challenge Set
+      - name: Request Copilot to Generate Daily Problems
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const challengeSet = '${{ github.event.inputs.challenge_set }}' || 'basic';
+            const topics = '${{ github.event.inputs.topics }}' || 'JavaScript arrays, data manipulation, algorithms';
+            const count = '${{ github.event.inputs.count }}' || '2';
             const date = '${{ steps.date.outputs.date }}';
             const day = '${{ steps.date.outputs.day }}';
 
-            const challenges = {
-              basic: [
-                {
-                  number: 3,
-                  title: 'Find Students with Highest Grades',
-                  difficulty: 'Medium',
-                  description: 'Write a function that finds and prints the names of students who have the highest grades from a given array of student objects.',
-                  inputData: `students = [
-              { name: 'marvin', grade: 89 },
-              { name: 'kenth', grade: 85 },
-              { name: 'jeff', grade: 95 },
-            ];`,
-                  requirements: [
-                    'Find the highest grade in the array',
-                    'Return/print the names of all students who have that highest grade',
-                    'Handle cases where multiple students have the same highest grade',
-                    'Include proper error handling for edge cases'
-                  ],
-                  topics: ['Array manipulation', 'Object property access', 'Finding maximum values', 'Filtering arrays']
-                },
-                {
-                  number: 4,
-                  title: 'Count Students Who Passed',
-                  difficulty: 'Easy',
-                  description: 'Write a function that counts how many students passed the exam (grade >= 70) from a given list of grades.',
-                  inputData: `grades = [85, 42, 78, 91, 55, 73, 88, 39, 67, 94];`,
-                  requirements: [
-                    'Count the number of grades that are 70 or above',
-                    'Return the total count of passing students',
-                    'Optionally, also return the list of passing grades',
-                    'Handle empty arrays gracefully'
-                  ],
-                  topics: ['Array filtering', 'Conditional logic', 'Counting algorithms', 'Array methods']
-                }
-              ],
-              intermediate: [
-                {
-                  number: 5,
-                  title: 'Calculate Grade Statistics',
-                  difficulty: 'Medium',
-                  description: 'Create a function that calculates comprehensive statistics for a class including average, median, mode, and grade distribution.',
-                  inputData: `grades = [85, 42, 78, 91, 55, 73, 88, 39, 67, 94, 85, 78, 91];`,
-                  requirements: [
-                    'Calculate average grade',
-                    'Find median grade',
-                    'Determine mode (most frequent grade)',
-                    'Create grade distribution (A, B, C, D, F)',
-                    'Handle edge cases like empty arrays'
-                  ],
-                  topics: ['Statistical calculations', 'Array sorting', 'Frequency analysis', 'Mathematical operations']
-                }
-              ],
-              advanced: [
-                {
-                  number: 6,
-                  title: 'Optimize Student Grouping',
-                  difficulty: 'Hard',
-                  description: 'Create an algorithm that groups students into balanced teams based on their grades to ensure fair distribution.',
-                  inputData: `students = [
-              { name: 'alice', grade: 95 },
-              { name: 'bob', grade: 78 },
-              { name: 'charlie', grade: 88 },
-              { name: 'diana', grade: 92 },
-              { name: 'eve', grade: 85 },
-              { name: 'frank', grade: 73 }
-            ];`,
-                  requirements: [
-                    'Create balanced teams with similar average grades',
-                    'Minimize the difference between team averages',
-                    'Handle different team sizes',
-                    'Optimize for fairness and balance'
-                  ],
-                  topics: ['Algorithm optimization', 'Load balancing', 'Combinatorial problems', 'Greedy algorithms']
-                }
-              ]
-            };
+            const { data: issue } = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `${day} Programming Challenge Generation - ${date}`,
+              body: `## Daily Programming Challenge Generation Request
 
-            let challengesToCreate = [];
-            if (challengeSet === 'all') {
-              challengesToCreate = [...challenges.basic, ...challenges.intermediate, ...challenges.advanced];
-            } else {
-              challengesToCreate = challenges[challengeSet] || challenges.basic;
-            }
-
-            const createdIssues = [];
-
-            for (const challenge of challengesToCreate) {
-              const issueBody = `## Programming Problem - ${day} Challenge
-
-            **Problem Number**: #${challenge.number}
-            **Date**: ${date}
-            **Difficulty**: ${challenge.difficulty}
-
-            **Description**: 
-            ${challenge.description}
-
-            **Input Data**:
-            \`\`\`javascript
-            ${challenge.inputData}
-            \`\`\`
-
-            **Expected Output**:
-            ${challenge.requirements.map(req => `- ${req}`).join('\n')}
-
-            **Requirements**:
-            - [ ] Implement the solution in JavaScript
-            - [ ] Include clear comments explaining the logic
-            - [ ] Handle edge cases appropriately
-            - [ ] Provide efficient algorithm implementation
-            - [ ] Include example usage and test cases
-            - [ ] Explain time and space complexity
-
-            **Difficulty Level**: ${challenge.difficulty}
-
-            **Topics Covered**: 
-            ${challenge.topics.map(topic => `- ${topic}`).join('\n')}
+            **Date**: ${day}, ${date}
+            **Topics**: ${topics}
+            **Requested Count**: ${count} problems
 
             ---
 
             **Instructions for @copilot**:
-            Please solve this ${day} programming challenge by:
-            1. Analyzing the given data structure carefully
-            2. Implementing the most efficient solution
-            3. Adding comprehensive comments explaining each step
-            4. Including multiple solution approaches where applicable
-            5. Providing example usage with the given data
-            6. Explaining the time and space complexity
-            7. Handling all edge cases thoroughly
-            8. Adding unit tests or test cases
 
-            @copilot please implement this solution with complete code examples and thorough documentation.`;
+            Welcome to ${day}'s programming challenge session! 
 
-              try {
-                const { data: issue } = await github.rest.issues.create({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  title: `${day} Programming Challenge #${challenge.number}: ${challenge.title}`,
-                  body: issueBody,
-                  labels: ['programming-challenge', 'copilot-task', `difficulty-${challenge.difficulty.toLowerCase()}`, `day-${day.toLowerCase()}`],
-                  assignees: ['copilot']
-                });
-                
-                createdIssues.push({
-                  number: issue.number,
-                  title: challenge.title,
-                  difficulty: challenge.difficulty,
-                  url: issue.html_url
-                });
-                
-                console.log(`Created issue #${issue.number} for Problem ${challenge.number}: ${challenge.title}`);
-              } catch (error) {
-                console.error(`Failed to create issue for Problem ${challenge.number}:`, error);
-              }
-            }
+            Please create **${count} unique and creative programming problems** based on these topics: **${topics}**
 
-            // Store created issues for email notification
-            core.setOutput('created_issues', JSON.stringify(createdIssues));
-            core.setOutput('challenge_count', createdIssues.length);
+            🎯 **Challenge Requirements:**
 
-      - name: Send Daily Challenge Notification
+            For each problem, please provide:
+
+            1. **Problem Title** - Creative and descriptive
+            2. **Problem Description** - Clear explanation of what needs to be solved
+            3. **Real-world Context** - Why this problem matters in practice
+            4. **Input Data** - Realistic, meaningful sample data (not trivial examples)
+            5. **Expected Output** - Specific requirements for the solution
+            6. **Edge Cases** - Important scenarios to handle
+            7. **Programming Concepts** - What skills this teaches
+            8. **Difficulty Level** - Easy/Medium/Hard with justification
+
+            📋 **Format each problem like this:**
+
+            \`\`\`markdown
+            ## Problem: [Creative Title]
+
+            **Difficulty**: [Easy/Medium/Hard]
+            **Real-world Context**: [Why this problem is useful]
+
+            **Description**: 
+            [Clear, engaging problem description]
+
+            **Input Data**:
+            \`\`\`javascript
+            // Provide realistic, meaningful data
+            [Sample data that makes sense in context]
+            \`\`\`
+
+            **Expected Output**:
+            - [Specific requirement 1]
+            - [Specific requirement 2]
+            - [etc...]
+
+            **Edge Cases to Handle**:
+            - [Edge case 1]
+            - [Edge case 2]
+
+            **Programming Concepts**:
+            - [Concept 1]
+            - [Concept 2]
+
+            **Why This Matters**: [Educational value explanation]
+            \`\`\`
+
+            ✨ **Make the problems:**
+            - **Engaging and practical** (real-world scenarios)
+            - **Progressively challenging** 
+            - **Diverse in approach** (different problem-solving patterns)
+            - **Educational** (teaching valuable programming concepts)
+            - **Creative** (not standard textbook problems)
+
+            Possible problem themes: ${topics}, real-world data processing, user interface logic, API data handling, business logic, optimization challenges, data analysis, creative algorithms.
+
+            @copilot please create engaging and educational programming challenges that will help developers grow their skills!`,
+              labels: ['copilot-task', 'daily-challenge', 'problem-generation', `day-${day.toLowerCase()}`],
+              assignees: ['copilot']
+            });
+
+            console.log(`Created daily problem generation request #${issue.number} for ${day}`);
+
+      - name: Send Daily Challenge Request Notification
         uses: dawidd6/action-send-mail@v6
         with:
           server_address: smtp.gmail.com
           server_port: 465
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: "🎯 Daily Programming Challenges - ${{ steps.date.outputs.day }}, ${{ steps.date.outputs.date }}"
+          subject: "🌅 Daily Challenge Generation - ${{ steps.date.outputs.day }}, ${{ steps.date.outputs.date }}"
           html_body: |
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <h1 style="color: #0366d6; text-align: center;">🎯 Daily Programming Challenges</h1>
+              <h1 style="color: #0366d6; text-align: center;">🌅 Daily Challenge Request</h1>
               <h2 style="color: #586069; text-align: center;">${{ steps.date.outputs.day }}, ${{ steps.date.outputs.date }}</h2>
               
               <div style="background-color: #f6f8fa; padding: 20px; border-radius: 6px; margin: 20px 0;">
-                <h3>📚 Today's Challenge Set: ${{ github.event.inputs.challenge_set || 'basic' }}</h3>
-                <p>We've created <strong>${{ steps.create-daily-challenges.outputs.challenge_count }}</strong> new programming challenges for you!</p>
+                <h3>🎯 Generation Request Sent</h3>
+                <p>Copilot has been asked to generate <strong>${{ github.event.inputs.count || '2' }}</strong> fresh programming challenges!</p>
+                <p><strong>Focus Topics:</strong> ${{ github.event.inputs.topics || 'JavaScript arrays, data manipulation, algorithms' }}</p>
               </div>
               
               <div style="background-color: #e1f5fe; padding: 15px; border-radius: 6px; margin: 20px 0;">
-                <h3>🤖 Copilot Assignment Status</h3>
-                <p>All challenges have been automatically assigned to <strong>@copilot</strong> and are now being processed.</p>
-                <p>Expected timeline:</p>
+                <h3>🤖 What Copilot Will Create</h3>
+                <p>Each problem will include:</p>
                 <ul>
-                  <li>⏰ <strong>Analysis:</strong> 5-10 minutes</li>
-                  <li>💻 <strong>Implementation:</strong> 15-30 minutes</li>
-                  <li>📝 <strong>Documentation:</strong> 5-10 minutes</li>
-                  <li>🔍 <strong>Pull Request:</strong> Ready for review</li>
+                  <li>Creative and engaging problem titles</li>
+                  <li>Real-world context and practical applications</li>
+                  <li>Meaningful sample data (not trivial examples)</li>
+                  <li>Clear requirements and expected outputs</li>
+                  <li>Important edge cases to consider</li>
+                  <li>Educational programming concepts</li>
+                  <li>Difficulty assessment and justification</li>
                 </ul>
               </div>
               
               <div style="background-color: #fff3cd; padding: 15px; border-radius: 6px; margin: 20px 0;">
-                <h3>📋 What to Expect</h3>
-                <p>Each solution will include:</p>
-                <ul>
-                  <li>✅ Complete JavaScript implementation</li>
-                  <li>✅ Comprehensive code comments</li>
-                  <li>✅ Edge case handling</li>
-                  <li>✅ Performance analysis</li>
-                  <li>✅ Example usage and test cases</li>
-                  <li>✅ Multiple solution approaches (where applicable)</li>
-                </ul>
+                <h3>🔄 Process Flow</h3>
+                <p><strong>1.</strong> Copilot analyzes the topics and creates problems</p>
+                <p><strong>2.</strong> Generated problems appear as issue comments</p>
+                <p><strong>3.</strong> You can create separate issues for individual problems</p>
+                <p><strong>4.</strong> Assign specific problems back to Copilot for solutions</p>
+                <p><strong>5.</strong> Review and merge Copilot's implementations</p>
               </div>
               
               <div style="background-color: #d4edda; padding: 15px; border-radius: 6px; margin: 20px 0;">
-                <h3>🎓 Learning Outcomes</h3>
-                <p>Today's challenges will help you master:</p>
+                <h3>🎓 Learning Benefits</h3>
+                <p>This dynamic system ensures:</p>
                 <ul>
-                  <li>Array manipulation and filtering</li>
-                  <li>Object property access and iteration</li>
-                  <li>Algorithm optimization techniques</li>
-                  <li>Error handling and edge cases</li>
-                  <li>Code documentation best practices</li>
+                  <li>Fresh, unique challenges every day</li>
+                  <li>Varied programming concepts and patterns</li>
+                  <li>Real-world applicable problems</li>
+                  <li>Progressive skill development</li>
+                  <li>Creative problem-solving approaches</li>
                 </ul>
-              </div>
-              
-              <div style="text-align: center; margin: 30px 0;">
-                <a href="https://github.com/${{ github.repository }}/issues" 
-                   style="background-color: #0366d6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-                  📖 View All Challenges
-                </a>
               </div>
               
               <p style="margin-top: 30px; color: #586069; font-size: 12px; text-align: center;">
                 Repository: ${{ github.repository }}<br>
-                Challenge Set: ${{ github.event.inputs.challenge_set || 'basic' }}<br>
-                Created: ${{ steps.date.outputs.date }}<br>
-                You'll receive notifications when solutions are ready for review!
+                Generated: ${{ steps.date.outputs.date }}<br>
+                Next: Wait for Copilot's creative programming challenges!
               </p>
             </div>
           to: sean.esparagoza@gmail.com
-          from: GitHub Programming Challenge System
+          from: GitHub Daily Challenge Generator

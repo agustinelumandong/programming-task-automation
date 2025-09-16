@@ -1,27 +1,28 @@
-name: Copilot Programming Challenge
+name: Copilot Problem Generator
 
 on:
   schedule:
-    - cron: "0 10 * * *" # Daily at 10 AM UTC
+    - cron: "0 10 * * 1-5" # Weekdays at 10 AM UTC
   workflow_dispatch: # Manual trigger
     inputs:
-      problem_number:
-        description: "Problem number to create"
-        required: true
-        default: "1"
+      topic:
+        description: "Programming topic for Copilot to create problems about"
+        required: false
+        default: "JavaScript fundamentals"
         type: string
       difficulty:
-        description: "Problem difficulty"
-        required: true
-        default: "Medium"
+        description: "Difficulty level preference"
+        required: false
+        default: "Mixed"
         type: choice
         options:
           - Easy
           - Medium
           - Hard
+          - Mixed
 
 jobs:
-  create-programming-challenge:
+  generate-programming-problems:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -31,186 +32,125 @@ jobs:
         id: date
         run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
 
-      - name: Create Problem 3 Issue
-        if: github.event.inputs.problem_number == '3' || github.event_name == 'schedule'
+      - name: Request Copilot to Generate Programming Problems
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const topic = '${{ github.event.inputs.topic }}' || 'JavaScript fundamentals';
+            const difficulty = '${{ github.event.inputs.difficulty }}' || 'Mixed';
+            const date = '${{ steps.date.outputs.date }}';
+
             const { data: issue } = await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: 'Programming Problem: #3 - Find Students with Highest Grades',
-              body: `## Programming Problem
+              title: `Generate Programming Problems - ${topic} (${difficulty}) - ${date}`,
+              body: `## Programming Problem Generation Request
 
-            **Problem Number**: #3
-
-            **Description**: 
-            Write a function that finds and prints the names of students who have the highest grades from a given array of student objects.
-
-            **Input Data**:
-            \`\`\`javascript
-            students = [
-              { name: 'marvin', grade: 89 },
-              { name: 'kenth', grade: 85 },
-              { name: 'jeff', grade: 95 },
-            ];
-            \`\`\`
-
-            **Expected Output**:
-            - Find the highest grade in the array
-            - Return/print the names of all students who have that highest grade
-            - Handle cases where multiple students have the same highest grade
-
-            **Requirements**:
-            - [ ] Implement the solution in JavaScript
-            - [ ] Include clear comments explaining the logic
-            - [ ] Handle edge cases (empty array, all same grades, etc.)
-            - [ ] Provide efficient algorithm implementation
-            - [ ] Include example usage and expected output
-
-            **Difficulty Level**: Medium
-
-            **Topics Covered**: 
-            - Array manipulation
-            - Object property access
-            - Finding maximum values
-            - Filtering arrays
-            - Algorithm optimization
+            **Date**: ${date}
+            **Topic**: ${topic}
+            **Difficulty**: ${difficulty}
 
             ---
 
             **Instructions for @copilot**:
-            Please solve this programming problem by:
-            1. Analyzing the given student data structure
-            2. Implementing an efficient solution to find students with highest grades
-            3. Adding comprehensive comments explaining each step
-            4. Including example usage with the provided data
-            5. Explaining the time and space complexity
-            6. Handling edge cases like empty arrays or ties
 
-            @copilot please implement this solution with complete code examples.`,
-              labels: ['programming-challenge', 'copilot-task', 'array-manipulation'],
-              assignees: ['copilot']
-            });
+            Please create 2-3 unique programming challenges based on the topic "${topic}" with ${difficulty.toLowerCase()} difficulty level.
 
-            console.log('Created issue #' + issue.number + ' for Problem 3');
+            For each programming problem, please create:
 
-      - name: Create Problem 4 Issue
-        if: github.event.inputs.problem_number == '4' || github.event_name == 'schedule'
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const { data: issue } = await github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: 'Programming Problem: #4 - Count Students Who Passed',
-              body: `## Programming Problem
+            1. **A clear problem description** explaining what needs to be solved
+            2. **Sample input data** with realistic examples
+            3. **Expected output specification** detailing what the solution should return
+            4. **Requirements list** including edge cases to handle
+            5. **Programming concepts** that the problem teaches
 
-            **Problem Number**: #4
+            **Format each problem as follows:**
+            \`\`\`
+            ## Problem #[NUMBER]: [TITLE]
 
-            **Description**: 
-            Write a function that counts how many students passed the exam (grade >= 70) from a given list of grades.
+            **Description**: [Clear explanation of what to solve]
 
             **Input Data**:
             \`\`\`javascript
-            grades = [85, 42, 78, 91, 55, 73, 88, 39, 67, 94];
+            [Provide realistic sample data]
             \`\`\`
 
-            **Expected Output**:
-            - Count the number of grades that are 70 or above
-            - Return the total count of passing students
-            - Optionally, also return the list of passing grades
+            **Expected Output**: [What the solution should return/do]
 
             **Requirements**:
-            - [ ] Implement the solution in JavaScript
-            - [ ] Include clear comments explaining the logic
-            - [ ] Handle edge cases (empty array, no passing grades, etc.)
-            - [ ] Provide efficient algorithm implementation
-            - [ ] Include example usage and expected output
+            - Implement in JavaScript
+            - Handle edge cases
+            - Include error checking
+            - Optimize for performance
 
-            **Difficulty Level**: Easy
+            **Concepts**: [List programming concepts this teaches]
+            \`\`\`
 
-            **Topics Covered**: 
-            - Array filtering
-            - Conditional logic
-            - Counting algorithms
-            - Array methods (filter, reduce)
+            Please make the problems:
+            - ✅ **Practical and realistic** (not just academic exercises)
+            - ✅ **Progressively challenging** if creating multiple problems
+            - ✅ **Teaching valuable programming concepts**
+            - ✅ **Include meaningful sample data**
+            - ✅ **Cover different programming paradigms** when possible
 
-            ---
+            Topics you could explore: ${topic}, data structures, algorithms, problem-solving patterns, real-world scenarios.
 
-            **Instructions for @copilot**:
-            Please solve this programming problem by:
-            1. Analyzing the given grades array
-            2. Implementing an efficient solution to count passing grades (>= 70)
-            3. Adding comprehensive comments explaining each step
-            4. Including example usage with the provided data
-            5. Showing multiple solution approaches (filter, reduce, for loop)
-            6. Explaining the time and space complexity
-            7. Handling edge cases like empty arrays
-
-            @copilot please implement this solution with multiple approaches and complete code examples.`,
-              labels: ['programming-challenge', 'copilot-task', 'array-filtering'],
+            @copilot please generate creative and educational programming problems based on these requirements.`,
+              labels: ['copilot-task', 'problem-generation', `topic-${topic.replace(/\s+/g, '-').toLowerCase()}`, `difficulty-${difficulty.toLowerCase()}`],
               assignees: ['copilot']
             });
 
-            console.log('Created issue #' + issue.number + ' for Problem 4');
+            console.log('Created problem generation request #' + issue.number);
 
-      - name: Wait for Copilot Processing
-        run: |
-          echo "Issues created and assigned to @copilot"
-          echo "Copilot will now work on solving these programming problems"
-          echo "Solutions will be provided as pull requests"
-
-      - name: Send Challenge Creation Notification
+      - name: Send Generation Request Notification
         uses: dawidd6/action-send-mail@v6
         with:
           server_address: smtp.gmail.com
           server_port: 465
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: "🧩 New Programming Challenges Created - ${{ steps.date.outputs.date }}"
+          subject: "🤖 Copilot Problem Generation Request - ${{ steps.date.outputs.date }}"
           html_body: |
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <h2 style="color: #0366d6;">🧩 Programming Challenge Alert</h2>
-              <p>New programming challenges have been created and assigned to GitHub Copilot!</p>
+              <h2 style="color: #0366d6;">🤖 Problem Generation Request Sent</h2>
+              <p>A request has been sent to GitHub Copilot to generate fresh programming challenges!</p>
               
               <div style="background-color: #f6f8fa; padding: 15px; border-radius: 6px; margin: 20px 0;">
-                <h3>📋 Today's Challenges</h3>
+                <h3>📋 Generation Parameters</h3>
                 <ul>
-                  <li><strong>Problem #3:</strong> Find Students with Highest Grades</li>
-                  <li><strong>Problem #4:</strong> Count Students Who Passed</li>
+                  <li><strong>Topic:</strong> ${{ github.event.inputs.topic || 'JavaScript fundamentals' }}</li>
+                  <li><strong>Difficulty:</strong> ${{ github.event.inputs.difficulty || 'Mixed' }}</li>
+                  <li><strong>Date:</strong> ${{ steps.date.outputs.date }}</li>
                 </ul>
               </div>
               
               <div style="background-color: #e1f5fe; padding: 15px; border-radius: 6px; margin: 20px 0;">
-                <h3>🤖 Copilot Status</h3>
-                <p>GitHub Copilot has been assigned these programming challenges and is now working on solutions.</p>
-                <p>Expected deliverables:</p>
+                <h3>🎯 What Copilot Will Create</h3>
+                <p>Copilot will generate 2-3 unique programming challenges including:</p>
                 <ul>
-                  <li>Complete JavaScript implementations</li>
-                  <li>Comprehensive code comments</li>
-                  <li>Edge case handling</li>
-                  <li>Performance analysis</li>
-                  <li>Example usage demonstrations</li>
+                  <li>Clear problem descriptions</li>
+                  <li>Realistic sample input data</li>
+                  <li>Expected output specifications</li>
+                  <li>Comprehensive requirements</li>
+                  <li>Educational programming concepts</li>
                 </ul>
               </div>
               
-              <div style="background-color: #fff3cd; padding: 15px; border-radius: 6px; margin: 20px 0;">
+              <div style="background-color: #d4edda; padding: 15px; border-radius: 6px; margin: 20px 0;">
                 <h3>⏰ Next Steps</h3>
-                <p>1. Monitor repository for new pull requests from Copilot</p>
-                <p>2. Review the proposed solutions</p>
-                <p>3. Provide feedback through PR comments if needed</p>
-                <p>4. Merge approved solutions</p>
+                <p>1. Copilot will analyze the request and create problems</p>
+                <p>2. Once problems are generated, they'll be posted as issue comments</p>
+                <p>3. You can then create separate issues for each problem</p>
+                <p>4. Assign individual problems back to Copilot for solutions</p>
               </div>
               
               <p style="margin-top: 30px; color: #586069; font-size: 12px;">
                 Repository: ${{ github.repository }}<br>
                 Workflow: ${{ github.workflow }}<br>
-                Date: ${{ steps.date.outputs.date }}<br>
-                Triggered by: GitHub Actions Automation
+                Generated: ${{ steps.date.outputs.date }}<br>
+                This is a dynamic problem generation system!
               </p>
             </div>
           to: sean.esparagoza@gmail.com
-          from: GitHub Programming Challenge System
+          from: GitHub Copilot Problem Generator

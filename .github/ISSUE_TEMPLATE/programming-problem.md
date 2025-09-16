@@ -1,16 +1,16 @@
 ---
-name: Programming Problem
-about: Create a programming challenge for Copilot to solve
-title: 'Programming Problem: [PROBLEM_NUMBER] - [BRIEF_DESCRIPTION]'
-labels: ['programming-challenge', 'copilot-task']
+name: Manual Programming Problem
+about: Create a custom programming challenge (use sparingly - prefer AI generation)
+title: 'Custom Problem: [BRIEF_DESCRIPTION]'
+labels: ['programming-challenge', 'manual-creation']
 assignees: ['']
 ---
 
-## Programming Problem
+## Manual Programming Problem
 
-**Problem Number**: #[PROBLEM_NUMBER]
+> **Note**: This template is for manual problem creation. We recommend using the automated Copilot problem generation workflows instead for more diverse and creative challenges.
 
-**Description**: 
+**Problem Description**: 
 [DESCRIBE_THE_PROGRAMMING_PROBLEM_HERE]
 
 **Input Data**:
@@ -34,12 +34,8 @@ assignees: ['']
 
 ---
 
-**Instructions for @copilot**:
-Please solve this programming problem by:
-1. Analyzing the given data structure
-2. Implementing the most efficient solution
-3. Adding comprehensive comments
-4. Including example usage
-5. Explaining the time and space complexity
+**To assign to @copilot for solution**:
+Simply add `@copilot` as an assignee to this issue, and Copilot will provide a complete solution.
 
-@copilot please implement this solution.
+**Better Alternative**: 
+Use the "Daily Programming Challenge" or "Copilot Problem Generator" workflows to get AI-generated problems that are more creative and diverse!

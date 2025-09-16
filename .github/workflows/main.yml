@@ -1,20 +1,34 @@
-# This file has been replaced by more specific workflow files
-# Please see:
+# This workflow file has been cleaned up
+# Please use the specific workflow files for your needs:
 # - email-automation.yml (basic email automation)
 # - send-email.yml (Node.js based email)
 # - failure-notification.yml (failure alerts)
 # - weekly-report.yml (weekly reports)
+# - copilot-programming-challenge.yml (Copilot problem generator)
+# - daily-programming-challenge.yml (Daily Copilot challenges)
+# - copilot-solution-monitor.yml (Monitor Copilot solutions)
 
-name: Deprecated Main Workflow
+name: Information
 
 on:
   workflow_dispatch:
 
 jobs:
-  notice:
+  info:
     runs-on: ubuntu-latest
     steps:
-      - name: Notice
+      - name: System Information
         run: |
-          echo "This workflow has been replaced by specific email automation workflows."
-          echo "Please use the other workflow files in this directory."
+          echo "🤖 GitHub Copilot Programming Challenge System"
+          echo "📧 Email Automation System"
+          echo ""
+          echo "Available workflows:"
+          echo "- Email Automation (daily emails)"
+          echo "- Copilot Problem Generator (dynamic challenge creation)"
+          echo "- Daily Challenge Generator (automated daily requests)"
+          echo "- Solution Monitor (track Copilot progress)"
+          echo "- Failure Notifications (instant alerts)"
+          echo "- Weekly Reports (progress summaries)"
+          echo ""
+          echo "✨ All programming challenges are generated dynamically by Copilot!"
+          echo "🎯 No more predefined problems - everything is AI-created!"

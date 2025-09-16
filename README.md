@@ -12,11 +12,12 @@ This project implements automated email notifications using GitHub Actions with 
 - **Multiple Triggers**: Schedule-based, push events, and manual triggers
 
 ### 🤖 GitHub Copilot Integration
-- **Automated Programming Challenges**: Daily programming problems created and assigned to Copilot
-- **AI-Powered Solutions**: GitHub Copilot solves challenges autonomously in its GitHub Actions environment
-- **Solution Notifications**: Email alerts when Copilot delivers solutions via pull requests
-- **Multiple Difficulty Levels**: Basic, intermediate, and advanced programming challenges
-- **Comprehensive Learning**: Code review practice with AI-generated solutions
+- **AI Problem Generation**: Copilot creates unique programming challenges based on your topics
+- **Dynamic Challenge Creation**: No predefined problems - everything is AI-generated fresh
+- **AI-Powered Solutions**: Copilot solves its own generated challenges autonomously
+- **Solution Notifications**: Email alerts for both problem generation and solution delivery
+- **Unlimited Variety**: Endless unique challenges covering any programming topic
+- **Comprehensive Learning**: Review AI-created problems and their implementations
 
 ## 📁 Project Structure
 
@@ -31,9 +32,9 @@ This project implements automated email notifications using GitHub Actions with 
     ├── send-email.yml                 # Node.js based email workflow
     ├── failure-notification.yml       # Workflow failure alerts
     ├── weekly-report.yml              # Weekly summary reports
-    ├── copilot-programming-challenge.yml    # Individual Copilot challenges
-    ├── daily-programming-challenge.yml      # Daily challenge sets
-    └── copilot-solution-monitor.yml         # Monitor Copilot solutions
+    ├── copilot-programming-challenge.yml    # AI problem generator (on-demand)
+    ├── daily-programming-challenge.yml      # Daily AI challenge generation
+    └── copilot-solution-monitor.yml         # Monitor all Copilot activity
 package.json                    # Node.js dependencies
 README.md                       # This file
 COPILOT-INTEGRATION.md         # Copilot setup and usage guide
