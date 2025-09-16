@@ -1,259 +1,235 @@
-# Email Automation with GitHub Actions & Copilot Integration
+# 🧠 Daily Programming Challenge Automation
 
-This project implements automated email notifications using GitHub Actions with integrated GitHub Copilot programming challenges. It provides comprehensive workflow examples for email automation and an AI-powered programming knowledge testing system.
+An automated system that creates daily programming challenges using GitHub Actions, complete with issue creation, email notifications, and challenge archiving.
 
 ## 🚀 Features
 
-### Email Automation
-- **Daily Email Reports**: Automated daily status emails
-- **Failure Notifications**: Instant alerts when workflows fail
-- **Weekly Summaries**: Comprehensive weekly activity reports
-- **Custom Email Scripts**: Flexible Node.js based email sending
-- **Multiple Triggers**: Schedule-based, push events, and manual triggers
+- **Automated Daily Challenges**: Generates and posts programming challenges every day at 9 AM UTC
+- **Smart Challenge Selection**: Uses weighted randomization to avoid recently used challenges
+- **Multi-Platform Notifications**: Email and Discord notifications for subscribers
+- **Comprehensive Archiving**: Maintains a complete history of all challenges
+- **GitHub Integration**: Creates formatted issues for community discussion
+- **Template System**: Customizable templates for issues, emails, and notifications
+- **Statistics Tracking**: Automatic tracking of challenge statistics and trends
+- **Dry Run Support**: Test the system without creating actual issues
 
-### 🤖 GitHub Copilot Integration
-- **AI Problem Generation**: Copilot creates unique programming challenges based on your topics
-- **Dynamic Challenge Creation**: No predefined problems - everything is AI-generated fresh
-- **AI-Powered Solutions**: Copilot solves its own generated challenges autonomously
-- **Solution Notifications**: Email alerts for both problem generation and solution delivery
-- **Unlimited Variety**: Endless unique challenges covering any programming topic
-- **Comprehensive Learning**: Review AI-created problems and their implementations
+## 🧠 Latest Challenge
+
+Latest Challenge: [Check back daily for new challenges!](#)
+
+**Total Challenges:** 0
+
+## 📋 How It Works
+
+1. **Daily Trigger**: GitHub Actions runs every day at 9 AM UTC
+2. **Challenge Selection**: Smart algorithm selects a challenge based on difficulty and usage history
+3. **Content Generation**: Creates formatted content using customizable templates
+4. **Issue Creation**: Posts the challenge as a GitHub issue with proper formatting
+5. **Notifications**: Sends email and Discord notifications to subscribers
+6. **Archiving**: Saves challenge data and updates repository statistics
+
+## 🛠️ Setup Instructions
+
+### 1. Repository Setup
+
+1. Fork this repository
+2. Enable GitHub Actions in your repository settings
+3. Set up the required secrets (see below)
+
+### 2. Required Secrets
+
+Add these secrets in your repository settings (`Settings > Secrets and variables > Actions`):
+
+```yaml
+# Email Configuration (Required for email notifications)
+EMAIL_USERNAME: your-email@gmail.com
+EMAIL_PASSWORD: your-app-password  # Use App Password for Gmail
+EMAIL_FROM: "Daily Challenge Bot <your-email@gmail.com>"
+EMAIL_SUBSCRIBERS: "subscriber1@email.com,subscriber2@email.com"
+
+# Optional: Discord Integration
+DISCORD_WEBHOOK_URL: https://discord.com/api/webhooks/your-webhook-url
+```
+
+### 3. Optional Variables
+
+Configure these in repository variables for customization:
+
+```yaml
+EMAIL_SERVER_ADDRESS: smtp.gmail.com  # Default
+EMAIL_SERVER_PORT: 587                # Default
+```
+
+### 4. Customization
+
+- **Add Challenges**: Edit `.github/config/challenges.json` to add new programming challenges
+- **Modify Templates**: Update files in `.github/templates/` to customize the format
+- **Change Schedule**: Modify the cron expression in `.github/workflows/daily-challenge.yml`
 
 ## 📁 Project Structure
 
 ```
 .github/
-├── ISSUE_TEMPLATE/
-│   └── programming-problem.md  # Template for programming challenges
+├── workflows/
+│   └── daily-challenge.yml          # Main workflow file
 ├── scripts/
-│   └── send-email.mjs          # Custom Node.js email script
-└── workflows/
-    ├── email-automation.yml           # Basic daily email automation
-    ├── send-email.yml                 # Node.js based email workflow
-    ├── failure-notification.yml       # Workflow failure alerts
-    ├── weekly-report.yml              # Weekly summary reports
-    ├── copilot-programming-challenge.yml    # AI problem generator (on-demand)
-    ├── daily-programming-challenge.yml      # Daily AI challenge generation
-    └── copilot-solution-monitor.yml         # Monitor all Copilot activity
-package.json                    # Node.js dependencies
-README.md                       # This file
-COPILOT-INTEGRATION.md         # Copilot setup and usage guide
-SETUP.md                       # Quick setup guide
+│   ├── generate-challenge.js        # Challenge generation logic
+│   ├── validate-challenge.js        # Content validation
+│   ├── archive-challenge.js         # Archiving system
+│   └── update-repository.js         # Repository updates
+├── config/
+│   └── challenges.json              # Challenge database
+├── templates/
+│   ├── issue-body.md               # GitHub issue template
+│   └── email-body.md               # Email notification template
+└── ISSUE_TEMPLATE/
+    ├── challenge-submission.md      # Solution submission template
+    └── config.yml                  # Issue template configuration
+
+archive/                             # Challenge archive
+├── index.json                      # Challenge index
+└── YYYY-MM-DD/                     # Daily challenge folders
+    ├── metadata.json
+    ├── challenge.md
+    └── issue-url.txt
+
+stats/                              # Statistics and analytics
+├── challenge-stats.json           # Raw statistics data
+└── summary.md                     # Human-readable summary
 ```
 
-## ⚙️ Setup Instructions
+## 🎯 Challenge Categories
 
-### 1. Gmail Configuration
+Our challenges cover various programming concepts:
 
-#### Enable 2FA and Create App Password
+- **Arrays**: Array manipulation, searching, sorting
+- **Strings**: String processing, pattern matching
+- **Algorithms**: Classic algorithms, problem-solving
+- **Data Structures**: Stacks, queues, trees, graphs
+- **Math**: Mathematical problems, number theory
+- **Recursion**: Recursive problem-solving
 
-1. Go to your [Google Account Security](https://myaccount.google.com/security) settings
-2. Ensure **2-Step Verification** is enabled
-3. Navigate to **App passwords**
-4. Create a new app password for "Mail"
-5. **Save this password immediately** - you won't see it again
+## 💡 Usage Examples
 
-### 2. GitHub Secrets Configuration
+### Manual Trigger
 
-In your repository:
+You can manually trigger a challenge using GitHub Actions:
 
-1. Go to **Settings** → **Secrets and variables** → **Actions**
-2. Create these repository secrets:
-   - `EMAIL_USERNAME`: Your Gmail address (e.g., `your-email@gmail.com`)
-   - `EMAIL_PASSWORD`: The app password you generated
-   - `GMAIL_APP_PASSWORD`: Same as EMAIL_PASSWORD (for Node.js workflows)
+1. Go to the "Actions" tab in your repository
+2. Select "Daily Programming Challenge"
+3. Click "Run workflow"
+4. Optionally specify a challenge ID or enable dry run mode
 
-### 3. Email Address Configuration
+### Adding New Challenges
 
-**IMPORTANT**: Update the email addresses in the workflow files:
+Edit `.github/config/challenges.json`:
 
-1. Open each workflow file in `.github/workflows/`
-2. Find lines with `to: your-email@example.com`
-3. Replace with your actual email address
-
-#### Files to update:
-- `.github/workflows/email-automation.yml` (line 33)
-- `.github/workflows/send-email.yml` (uses script)
-- `.github/workflows/failure-notification.yml` (line 29)
-- `.github/workflows/weekly-report.yml` (line 46)
-- `.github/scripts/send-email.mjs` (line 19)
-
-## 📧 Available Workflows
-
-### 1. Basic Email Automation (`email-automation.yml`)
-- **Trigger**: Daily at 9 AM UTC, on pushes to main, manual
-- **Uses**: `dawidd6/action-send-mail@v6` action
-- **Best for**: Simple notifications
-
-### 2. Node.js Email Script (`send-email.yml`)
-- **Trigger**: Daily at midnight UTC, manual
-- **Uses**: Custom Node.js script with nodemailer
-- **Best for**: Complex email content and logic
-
-### 3. Failure Notifications (`failure-notification.yml`)
-- **Trigger**: When any workflow fails
-- **Purpose**: Instant alerts for workflow failures
-- **Best for**: Monitoring and debugging
-
-### 4. Weekly Reports (`weekly-report.yml`)
-- **Trigger**: Every Monday at 9 AM UTC, manual
-- **Purpose**: Weekly activity summaries
-- **Best for**: Regular status updates
-
-## 🕐 Schedule Examples
-
-The workflows use cron syntax for scheduling:
-
-- `'0 9 * * *'` - Daily at 9 AM UTC
-- `'0 0 * * *'` - Daily at midnight UTC
-- `'0 9 * * 1'` - Every Monday at 9 AM UTC
-- `'0 9 * * 1-5'` - Weekdays at 9 AM UTC
-- `'0 0 * * 0'` - Sundays at midnight UTC
-- `'0 12 1 * *'` - First day of each month at noon UTC
-
-## 🧪 Testing
-
-### Manual Testing
-1. Go to the **Actions** tab in your repository
-2. Select any workflow with `workflow_dispatch` trigger
-3. Click **Run workflow** to test manually
-
-### Local Testing (Node.js Script)
-```bash
-# Install dependencies
-npm install
-
-# Set environment variables
-export EMAIL_USERNAME="your-email@gmail.com"
-export GMAIL_APP_PASSWORD="your-app-password"
-
-# Run the script
-npm run send-email
+```json
+{
+  "id": "unique-challenge-id",
+  "title": "Your Challenge Title",
+  "description": "Detailed description of the problem",
+  "example": "Example: input → output",
+  "difficulty": "easy|medium|hard",
+  "category": "arrays|strings|algorithms|etc",
+  "hints": ["Helpful hint 1", "Helpful hint 2"],
+  "lastUsed": null
+}
 ```
 
-## 🔧 Customization
+## 📊 Statistics
 
-### Adding Recipients
-To send emails to multiple recipients, update the `to` field:
+The system automatically tracks:
+
+- Total number of challenges posted
+- Distribution by difficulty level
+- Distribution by category
+- Challenge frequency and timing
+- Community engagement metrics
+
+View detailed statistics in the `stats/` directory.
+
+## 🤝 Contributing
+
+We welcome contributions! Here's how you can help:
+
+1. **Add New Challenges**: Submit PRs with new programming challenges
+2. **Improve Templates**: Enhance the issue and email templates
+3. **Bug Fixes**: Report and fix issues you encounter
+4. **Feature Requests**: Suggest new features or improvements
+
+### Challenge Submission Guidelines
+
+When adding new challenges:
+
+- Ensure the problem is clear and well-defined
+- Include comprehensive examples
+- Provide helpful hints without giving away the solution
+- Test the challenge yourself before submitting
+- Follow the existing JSON structure
+
+## 🔧 Advanced Configuration
+
+### Custom Scheduling
+
+Modify the cron expression in the workflow file:
+
 ```yaml
-to: email1@example.com,email2@example.com,email3@example.com
+schedule:
+  - cron: '0 9 * * *'  # 9 AM UTC daily
+  - cron: '0 17 * * 1' # 5 PM UTC on Mondays only
 ```
 
-### Adding CC/BCC
-For the `dawidd6/action-send-mail` action:
-```yaml
-cc: cc-recipient@example.com
-bcc: bcc-recipient@example.com
-```
+### Notification Customization
 
-### Custom Email Content
-Edit the `body` or `html_body` sections in the workflow files to customize email content. You can use GitHub context variables:
+The system supports multiple notification channels:
 
-- `${{ github.repository }}` - Repository name
-- `${{ github.actor }}` - User who triggered the workflow
-- `${{ github.sha }}` - Commit hash
-- `${{ job.status }}` - Job status
-- `${{ github.run_id }}` - Workflow run ID
+- **Email**: HTML emails with challenge details
+- **Discord**: Rich embeds with challenge information
+- **Slack**: (Can be added with additional configuration)
 
-### Rich HTML Content
-Use the `html_body` parameter for formatted emails:
-```yaml
-html_body: |
-  <h1>Custom Report</h1>
-  <p>This is <strong>formatted</strong> content.</p>
-```
+### Challenge Difficulty Balancing
 
-## 🔒 Security Best Practices
+The selection algorithm considers:
 
-- ✅ Never commit passwords or API keys to your repository
-- ✅ Always use GitHub Secrets for sensitive information
-- ✅ Use app-specific passwords rather than your main account password
-- ✅ Consider using dedicated email accounts for automation
-- ✅ Regularly rotate your app passwords
+- Time since last use (prefers unused challenges)
+- Difficulty distribution (balances easy/medium/hard)
+- Category variety (ensures diverse topics)
 
 ## 🐛 Troubleshooting
 
 ### Common Issues
 
-**Authentication failures**
-- Ensure you're using an app-specific password, not your regular Gmail password
-- Verify the `EMAIL_USERNAME` and `EMAIL_PASSWORD` secrets are correctly set
+1. **Email not sending**: Check your email credentials and app password
+2. **Issues not creating**: Verify repository permissions for GitHub Actions
+3. **Challenge not selected**: Check the challenges.json format and syntax
 
-**Missing secrets**
-- Check that all required secrets are properly configured in repository settings
-- Secret names are case-sensitive
+### Debug Mode
 
-**Cron not triggering**
-- Remember that cron times are in UTC
-- GitHub may have slight delays in scheduled workflows
-- Repositories with low activity might have delayed scheduled runs
-
-**Email not received**
-- Check spam/junk folders
-- Verify the recipient email address is correct
-- Review the workflow logs for error messages
-
-### Debugging Steps
-
-1. **Check workflow logs**: Go to Actions tab → Select failed workflow → Review logs
-2. **Verify secrets**: Ensure all secrets are set in repository settings
-3. **Test manually**: Use `workflow_dispatch` to trigger workflows manually
-4. **Check email settings**: Verify Gmail app password is correctly generated
-
-## 📚 Advanced Features
-
-### Conditional Sending
-Send emails only under specific conditions:
+Enable debug logging by setting repository variable:
 ```yaml
-- name: Send on failure only
-  if: failure()
-  uses: dawidd6/action-send-mail@v6
-  # ... configuration
+ACTIONS_STEP_DEBUG: true
 ```
 
-### File Attachments
-Attach files to emails:
-```yaml
-attachments: |
-  logs/application.log
-  reports/daily-report.pdf
+### Dry Run Testing
+
+Test without creating actual issues:
+```bash
+# Manual trigger with dry run enabled
 ```
 
-### Multiple Email Providers
-While this setup uses Gmail, you can configure other providers by changing the SMTP settings:
+## 📜 License
 
-**Outlook/Hotmail:**
-```yaml
-server_address: smtp-mail.outlook.com
-server_port: 587
-```
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-**Yahoo:**
-```yaml
-server_address: smtp.mail.yahoo.com
-server_port: 587
-```
+## 🙏 Acknowledgments
 
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-## 📞 Support
-
-If you encounter issues:
-1. Check the troubleshooting section above
-2. Review GitHub Actions logs
-3. Verify your Gmail app password setup
-4. Check that all email addresses are correctly configured
+- Inspired by daily coding challenge platforms
+- Built with GitHub Actions and community feedback
+- Thanks to all contributors and challenge participants
 
 ---
 
-**Note**: Remember to update all email addresses in the workflow files before using this automation system!
+**Happy Coding! 🚀**
+
+*Made with ❤️ for the programming community*

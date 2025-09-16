@@ -1,0 +1,233 @@
+name: Daily Programming Challenge
+
+on:
+  schedule:
+    # Runs every day at 9:00 AM UTC
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+    inputs:
+      challenge_id:
+        description: 'Specific challenge ID to use (optional)'
+        required: false
+        type: string
+      dry_run:
+        description: 'Run without creating issues or sending notifications'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  CHALLENGE_REPO: ${{ github.repository }}
+  NODE_VERSION: '20'
+
+jobs:
+  # Job 1: Generate and validate challenge content
+  generate-challenge:
+    runs-on: ubuntu-latest
+    outputs:
+      challenge-data: ${{ steps.challenge.outputs.challenge-data }}
+      challenge-id: ${{ steps.challenge.outputs.challenge-id }}
+      challenge-date: ${{ steps.challenge.outputs.challenge-date }}
+      issue-body: ${{ steps.challenge.outputs.issue-body }}
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: |
+          if [ -f package.json ]; then
+            npm ci
+          else
+            echo "No package.json found, skipping npm install"
+          fi
+
+      - name: Generate Challenge
+        id: challenge
+        run: |
+          node .github/scripts/generate-challenge.js \
+            --config=".github/config/challenges.json" \
+            --templates=".github/templates" \
+            --challenge-id="${{ inputs.challenge_id }}" \
+            --output-dir="./generated"
+
+      - name: Validate Challenge Content
+        run: |
+          node .github/scripts/validate-challenge.js ./generated/challenge-data.json
+
+      - name: Upload Challenge Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: challenge-content
+          path: generated/
+          retention-days: 7
+
+  # Job 2: Create GitHub issue
+  create-issue:
+    needs: generate-challenge
+    runs-on: ubuntu-latest
+    if: ${{ !inputs.dry_run }}
+    outputs:
+      issue-url: ${{ steps.create-issue.outputs.html_url }}
+      issue-number: ${{ steps.create-issue.outputs.number }}
+    
+    steps:
+      - name: Download Challenge Content
+        uses: actions/download-artifact@v4
+        with:
+          name: challenge-content
+          path: generated/
+
+      - name: Create GitHub Issue
+        id: create-issue
+        uses: dacbd/create-issue-action@v2
+        with:
+          token: ${{ github.token }}
+          title-path: generated/issue-title.txt
+          body-path: generated/issue-body.md
+          labels-path: generated/issue-labels.txt
+
+  # Job 3: Send notifications (runs in parallel with archiving)
+  send-notifications:
+    needs: [generate-challenge, create-issue]
+    runs-on: ubuntu-latest
+    if: ${{ !inputs.dry_run }}
+    strategy:
+      matrix:
+        notification-type: [email, discord]
+        include:
+          - notification-type: email
+            condition: ${{ secrets.EMAIL_USERNAME }}
+          - notification-type: discord
+            condition: ${{ secrets.DISCORD_WEBHOOK_URL }}
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download Challenge Content
+        uses: actions/download-artifact@v4
+        with:
+          name: challenge-content
+          path: generated/
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Send Email Notification
+        if: matrix.notification-type == 'email' && matrix.condition
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ vars.EMAIL_SERVER_ADDRESS || 'smtp.gmail.com' }}
+          server_port: ${{ vars.EMAIL_SERVER_PORT || '587' }}
+          secure: true
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject-path: generated/email-subject.txt
+          to: ${{ secrets.EMAIL_SUBSCRIBERS }}
+          from: ${{ secrets.EMAIL_FROM }}
+          html_body_file: generated/email-body.html
+
+      - name: Send Discord Notification
+        if: matrix.notification-type == 'discord' && matrix.condition
+        uses: Ilshidur/action-discord@master
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        with:
+          args-file: generated/discord-message.txt
+
+  # Job 4: Archive and update repository
+  archive-and-update:
+    needs: [generate-challenge, create-issue]
+    runs-on: ubuntu-latest
+    if: ${{ !inputs.dry_run }}
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download Challenge Content
+        uses: actions/download-artifact@v4
+        with:
+          name: challenge-content
+          path: generated/
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Archive Challenge
+        run: |
+          node .github/scripts/archive-challenge.js \
+            --challenge-data="generated/challenge-data.json" \
+            --issue-url="${{ needs.create-issue.outputs.issue-url }}" \
+            --issue-number="${{ needs.create-issue.outputs.issue-number }}"
+
+      - name: Update Repository Files
+        run: |
+          node .github/scripts/update-repository.js \
+            --challenge-data="generated/challenge-data.json" \
+            --issue-url="${{ needs.create-issue.outputs.issue-url }}"
+
+      - name: Commit Changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: |
+            🧠 Daily Challenge: ${{ needs.generate-challenge.outputs.challenge-id }}
+            
+            - Added challenge archive
+            - Updated README with latest challenge
+            - Updated challenge statistics
+          file_pattern: |
+            README.md
+            archive/
+            stats/
+          commit_user_name: Challenge Bot
+          commit_user_email: action@github.com
+
+  # Job 5: Cleanup and reporting
+  cleanup:
+    needs: [generate-challenge, create-issue, send-notifications, archive-and-update]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Generate Workflow Summary
+        run: |
+          echo "# Daily Challenge Workflow Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Challenge ID:** ${{ needs.generate-challenge.outputs.challenge-id }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Date:** ${{ needs.generate-challenge.outputs.challenge-date }}" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ inputs.dry_run }}" == "true" ]; then
+            echo "**Mode:** Dry Run (no issues created)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Issue Created:** ${{ needs.create-issue.outputs.issue-url }}" >> $GITHUB_STEP_SUMMARY
+            echo "**Issue Number:** #${{ needs.create-issue.outputs.issue-number }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Job Status" >> $GITHUB_STEP_SUMMARY
+          echo "- Generate Challenge: ${{ needs.generate-challenge.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Create Issue: ${{ needs.create-issue.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Send Notifications: ${{ needs.send-notifications.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Archive & Update: ${{ needs.archive-and-update.result }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Report Failures
+        if: ${{ contains(needs.*.result, 'failure') }}
+        run: |
+          echo "❌ Some jobs failed. Check the workflow logs for details." >> $GITHUB_STEP_SUMMARY
+          exit 1

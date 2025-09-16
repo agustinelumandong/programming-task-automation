@@ -1,0 +1,231 @@
+{
+  "challenges": [
+    {
+      "id": "largest-number-array",
+      "title": "Find the largest number in an array",
+      "description": "Given an array of integers, write a function to find and return the largest number. The function should handle edge cases such as empty arrays and negative numbers.",
+      "example": "Example: [3, 7, 2, 9, 1] → Output: 9",
+      "difficulty": "easy",
+      "category": "arrays",
+      "hints": [
+        "Consider what should happen with an empty array",
+        "Think about the initial value for comparison",
+        "Remember that arrays can contain negative numbers"
+      ],
+      "lastUsed": null
+    },
+    {
+      "id": "palindrome-check",
+      "title": "Check if a string is a palindrome",
+      "description": "Write a function that determines if a given string reads the same forwards and backwards. The function should ignore case, spaces, and punctuation.",
+      "example": "Example: 'racecar' → Output: true, 'A man a plan a canal Panama' → Output: true",
+      "difficulty": "easy",
+      "category": "strings",
+      "hints": [
+        "Consider how to handle case sensitivity",
+        "Think about whether spaces and punctuation should matter",
+        "You can use two pointers approaching from both ends"
+      ],
+      "lastUsed": null
+    },
+    {
+      "id": "factorial-calculation",
+      "title": "Calculate factorial of a number",
+      "description": "Write a function to calculate the factorial of a given positive integer. The factorial of n (written as n!) is the product of all positive integers less than or equal to n.",
+      "example": "Example: factorial(5) → Output: 120 (5 × 4 × 3 × 2 × 1)",
+      "difficulty": "easy",
+      "category": "math",
+      "hints": [
+        "Consider both iterative and recursive approaches",
+        "Handle the edge case of 0! = 1",
+        "Think about input validation for negative numbers"
+      ],
+      "lastUsed": null
+    },
+    {
+      "id": "remove-array-duplicates",
+      "title": "Remove duplicates from array",
+      "description": "Write a function that removes duplicate elements from an array while preserving the original order of first occurrences.",
+      "example": "Example: [1, 2, 2, 3, 1, 4, 3] → Output: [1, 2, 3, 4]",
+      "difficulty": "easy",
+      "category": "arrays",
+      "hints": [
+        "Consider using a Set to track seen elements",
+        "Think about space vs time complexity trade-offs",
+        "Preserve the order of first occurrences"
+      ],
+      "lastUsed": null
+    },
+    {
+      "id": "count-vowels",
+      "title": "Count vowels in a string",
+      "description": "Write a function that counts the number of vowels (a, e, i, o, u) in a given string. The function should be case-insensitive.",
+      "example": "Example: 'programming' → Output: 3 (o, a, i)",
+      "difficulty": "easy",
+      "category": "strings",
+      "hints": [
+        "Remember to handle both uppercase and lowercase",
+        "Consider whether 'y' should be treated as a vowel",
+        "Think about unicode characters if applicable"
+      ],
+      "lastUsed": null
+    },
+    {
+      "id": "reverse-string",
+      "title": "Reverse a string",
+      "description": "Write a function that reverses a given string without using built-in reverse methods. Implement the reversal manually using loops or recursion.",
+      "example": "Example: 'hello' → Output: 'olleh'",
+      "difficulty": "easy",
+      "category": "strings",
+      "hints": [
+        "Try using two pointers from start and end",
+        "Consider converting string to array for easier manipulation",
+        "Think about recursive approach as an alternative"
+      ],
+      "lastUsed": null
+    },
+    {
+      "id": "second-largest-number",
+      "title": "Find second largest number",
+      "description": "Write a function to find the second largest number in an array of integers. Handle cases where all numbers are the same or there are fewer than 2 distinct numbers.",
+      "example": "Example: [5, 2, 8, 1, 9, 8] → Output: 8",
+      "difficulty": "medium",
+      "category": "arrays",
+      "hints": [
+        "Consider what happens when all numbers are the same",
+        "Think about the difference between second largest value and second largest distinct value",
+        "Handle edge cases with arrays of length < 2"
+      ],
+      "lastUsed": null
+    },
+    {
+      "id": "prime-number-check",
+      "title": "Check if number is prime",
+      "description": "Write a function that determines if a given number is prime. A prime number is a natural number greater than 1 that has no positive divisors other than 1 and itself.",
+      "example": "Example: isPrime(17) → Output: true, isPrime(15) → Output: false",
+      "difficulty": "medium",
+      "category": "math",
+      "hints": [
+        "Remember that 1 is not considered a prime number",
+        "You only need to check divisors up to the square root",
+        "Consider special cases for numbers ≤ 1"
+      ],
+      "lastUsed": null
+    },
+    {
+      "id": "fibonacci-sequence",
+      "title": "Generate Fibonacci sequence",
+      "description": "Write a function that generates the first n numbers in the Fibonacci sequence. Each number is the sum of the two preceding ones, starting from 0 and 1.",
+      "example": "Example: fibonacci(8) → Output: [0, 1, 1, 2, 3, 5, 8, 13]",
+      "difficulty": "medium",
+      "category": "algorithms",
+      "hints": [
+        "Consider both iterative and recursive approaches",
+        "Think about memoization for recursive solutions",
+        "Handle edge cases for n ≤ 0"
+      ],
+      "lastUsed": null
+    },
+    {
+      "id": "binary-search",
+      "title": "Implement binary search",
+      "description": "Write a function that implements binary search to find the index of a target value in a sorted array. Return -1 if the target is not found.",
+      "example": "Example: binarySearch([1, 3, 5, 7, 9, 11], 7) → Output: 3",
+      "difficulty": "medium",
+      "category": "algorithms",
+      "hints": [
+        "The array must be sorted for binary search to work",
+        "Use two pointers: left and right",
+        "Always check the middle element and eliminate half the search space"
+      ],
+      "lastUsed": null
+    },
+    {
+      "id": "two-sum-problem",
+      "title": "Two Sum Problem",
+      "description": "Given an array of integers and a target sum, write a function that returns the indices of two numbers that add up to the target. Assume there's exactly one solution.",
+      "example": "Example: twoSum([2, 7, 11, 15], 9) → Output: [0, 1] (because 2 + 7 = 9)",
+      "difficulty": "medium",
+      "category": "arrays",
+      "hints": [
+        "Consider using a hash map to store seen numbers",
+        "Think about the complement: target - current number",
+        "The brute force solution is O(n²), can you do better?"
+      ],
+      "lastUsed": null
+    },
+    {
+      "id": "merge-sorted-arrays",
+      "title": "Merge two sorted arrays",
+      "description": "Write a function that merges two sorted arrays into one sorted array. The function should maintain the sorted order and handle arrays of different lengths.",
+      "example": "Example: merge([1, 3, 5], [2, 4, 6, 8]) → Output: [1, 2, 3, 4, 5, 6, 8]",
+      "difficulty": "medium",
+      "category": "arrays",
+      "hints": [
+        "Use two pointers, one for each array",
+        "Compare elements and add the smaller one first",
+        "Don't forget to handle remaining elements"
+      ],
+      "lastUsed": null
+    },
+    {
+      "id": "anagram-check",
+      "title": "Check if two strings are anagrams",
+      "description": "Write a function that determines if two strings are anagrams (contain the same characters with the same frequency, ignoring case and spaces).",
+      "example": "Example: areAnagrams('listen', 'silent') → Output: true",
+      "difficulty": "medium",
+      "category": "strings",
+      "hints": [
+        "Consider sorting both strings and comparing",
+        "Alternative: count character frequencies",
+        "Remember to handle case sensitivity and spaces"
+      ],
+      "lastUsed": null
+    },
+    {
+      "id": "longest-substring",
+      "title": "Longest substring without repeating characters",
+      "description": "Given a string, write a function to find the length of the longest substring without repeating characters.",
+      "example": "Example: longestSubstring('abcabcbb') → Output: 3 (substring 'abc')",
+      "difficulty": "hard",
+      "category": "strings",
+      "hints": [
+        "Use the sliding window technique",
+        "Keep track of characters in current window",
+        "When you find a repeat, shrink the window from the left"
+      ],
+      "lastUsed": null
+    },
+    {
+      "id": "valid-parentheses",
+      "title": "Valid parentheses checker",
+      "description": "Write a function that determines if a string containing only parentheses '(', ')', '{', '}', '[', ']' is valid. Every opening bracket must have a corresponding closing bracket in the correct order.",
+      "example": "Example: isValid('()[]{}') → Output: true, isValid('([)]') → Output: false",
+      "difficulty": "medium",
+      "category": "data-structures",
+      "hints": [
+        "Use a stack data structure",
+        "Push opening brackets onto the stack",
+        "When you see a closing bracket, check if it matches the top of the stack"
+      ],
+      "lastUsed": null
+    }
+  ],
+  "metadata": {
+    "total_challenges": 15,
+    "difficulty_distribution": {
+      "easy": 6,
+      "medium": 7,
+      "hard": 1
+    },
+    "category_distribution": {
+      "arrays": 5,
+      "strings": 5,
+      "algorithms": 3,
+      "math": 2,
+      "data-structures": 1
+    },
+    "last_updated": "2024-01-01T00:00:00.000Z",
+    "version": "1.0.0"
+  }
+}

@@ -1,29 +1,45 @@
 {
-  "name": "github-email-automation",
+  "name": "programming-task-automation", 
   "version": "1.0.0",
-  "description": "Email automation project using GitHub Actions",
-  "type": "module",
+  "description": "Automated daily programming challenges with GitHub Actions",
   "main": "index.js",
   "scripts": {
-    "send-email": "node .github/scripts/send-email.mjs",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "generate-challenge": "node .github/scripts/generate-challenge.js",
+    "validate-challenge": "node .github/scripts/validate-challenge.js",
+    "archive-challenge": "node .github/scripts/archive-challenge.js",
+    "update-repository": "node .github/scripts/update-repository.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint .github/scripts/*.js",
+    "format": "prettier --write .github/scripts/*.js"
   },
-  "dependencies": {
-    "nodemailer": "^6.9.0",
-    "dotenv": "^16.0.0"
-  },
-  "devDependencies": {},
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yourusername/programming-task-automation.git"
+    "url": "git+https://github.com/your-username/programming-task-automation.git"
   },
   "keywords": [
-    "github-actions",
-    "email",
+    "programming",
+    "challenges",
     "automation",
-    "nodejs",
-    "nodemailer"
+    "github-actions",
+    "daily-coding",
+    "algorithms"
   ],
   "author": "Your Name",
-  "license": "MIT"
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/your-username/programming-task-automation/issues"
+  },
+  "homepage": "https://github.com/your-username/programming-task-automation#readme",
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "challenges": {
+    "lastChallenge": null,
+    "lastUpdated": null,
+    "totalChallenges": 0
+  }
 }

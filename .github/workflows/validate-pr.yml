@@ -1,0 +1,248 @@
+name: Validate Pull Request
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - '.github/**'
+      - 'package.json'
+      - '**.js'
+      - '**.json'
+      - '**.md'
+
+jobs:
+  validate-challenges:
+    runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.changed_files, '.github/config/challenges.json')
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate Challenge Configuration
+        run: |
+          # Validate JSON syntax
+          echo "🔍 Validating challenges.json syntax..."
+          node -e "JSON.parse(require('fs').readFileSync('.github/config/challenges.json', 'utf8'))"
+          
+          # Validate challenge structure
+          echo "🔍 Validating challenge structure..."
+          node -e "
+            const challenges = JSON.parse(require('fs').readFileSync('.github/config/challenges.json', 'utf8'));
+            const requiredFields = ['id', 'title', 'description', 'difficulty', 'category'];
+            
+            challenges.challenges.forEach((challenge, index) => {
+              requiredFields.forEach(field => {
+                if (!challenge[field]) {
+                  throw new Error(\`Challenge \${index + 1} missing required field: \${field}\`);
+                }
+              });
+              
+              if (!['easy', 'medium', 'hard'].includes(challenge.difficulty)) {
+                throw new Error(\`Challenge \${index + 1} has invalid difficulty: \${challenge.difficulty}\`);
+              }
+            });
+            
+            console.log('✅ All challenges are valid');
+          "
+
+      - name: Check for Duplicate Challenge IDs
+        run: |
+          echo "🔍 Checking for duplicate challenge IDs..."
+          node -e "
+            const challenges = JSON.parse(require('fs').readFileSync('.github/config/challenges.json', 'utf8'));
+            const ids = challenges.challenges.map(c => c.id);
+            const duplicates = ids.filter((id, index) => ids.indexOf(id) !== index);
+            
+            if (duplicates.length > 0) {
+              throw new Error('Duplicate challenge IDs found: ' + duplicates.join(', '));
+            }
+            
+            console.log('✅ No duplicate IDs found');
+          "
+
+  validate-scripts:
+    runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.changed_files, '.github/scripts/')
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: |
+          if [ -f package.json ]; then
+            npm ci
+          fi
+
+      - name: Lint Scripts
+        run: |
+          echo "🔍 Linting JavaScript files..."
+          # Basic syntax check
+          for file in .github/scripts/*.js; do
+            echo "Checking $file..."
+            node -c "$file"
+          done
+          echo "✅ All scripts pass syntax check"
+
+      - name: Test Script Execution
+        run: |
+          echo "🔍 Testing script execution..."
+          
+          # Test generate-challenge with help flag
+          if node .github/scripts/generate-challenge.js 2>&1 | grep -q "Usage:"; then
+            echo "✅ generate-challenge.js responds correctly"
+          else
+            echo "❌ generate-challenge.js help output not found"
+            exit 1
+          fi
+
+  validate-workflow:
+    runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.changed_files, '.github/workflows/')
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Validate Workflow Syntax
+        run: |
+          echo "🔍 Validating workflow YAML syntax..."
+          
+          # Check if yaml files are valid
+          for file in .github/workflows/*.yml .github/workflows/*.yaml; do
+            if [ -f "$file" ]; then
+              echo "Validating $file..."
+              # Basic YAML syntax check using Python
+              python3 -c "
+              import yaml
+              import sys
+              try:
+                  with open('$file', 'r') as f:
+                      yaml.safe_load(f)
+                  print('✅ $file is valid YAML')
+              except yaml.YAMLError as e:
+                  print('❌ $file has YAML syntax error:', e)
+                  sys.exit(1)
+              except Exception as e:
+                  print('❌ Error reading $file:', e)
+                  sys.exit(1)
+              "
+            fi
+          done
+
+  test-dry-run:
+    runs-on: ubuntu-latest
+    if: |
+      contains(github.event.pull_request.changed_files, '.github/scripts/') ||
+      contains(github.event.pull_request.changed_files, '.github/config/') ||
+      contains(github.event.pull_request.changed_files, '.github/templates/')
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Test Challenge Generation
+        run: |
+          echo "🔍 Testing challenge generation..."
+          
+          # Create test directories
+          mkdir -p test-output
+          
+          # Test challenge generation
+          node .github/scripts/generate-challenge.js \
+            --config=".github/config/challenges.json" \
+            --templates=".github/templates" \
+            --output-dir="test-output"
+
+      - name: Validate Generated Content
+        run: |
+          echo "🔍 Validating generated content..."
+          
+          # Test validation script
+          if [ -f test-output/challenge-data.json ]; then
+            node .github/scripts/validate-challenge.js test-output/challenge-data.json
+            echo "✅ Challenge validation passed"
+          else
+            echo "❌ Challenge data not generated"
+            exit 1
+          fi
+
+      - name: Check Required Files
+        run: |
+          echo "🔍 Checking required files were generated..."
+          
+          required_files=(
+            "challenge-data.json"
+            "issue-body.md"
+            "issue-title.txt"
+            "issue-labels.txt"
+            "email-body.html"
+            "email-subject.txt"
+            "discord-message.txt"
+          )
+          
+          for file in "${required_files[@]}"; do
+            if [ -f "test-output/$file" ]; then
+              echo "✅ $file exists"
+            else
+              echo "❌ $file missing"
+              exit 1
+            fi
+          done
+
+      - name: Upload Test Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-generation-output
+          path: test-output/
+          retention-days: 3
+
+  security-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Check for Secrets in Code
+        run: |
+          echo "🔍 Checking for exposed secrets..."
+          
+          # Check for common secret patterns
+          if grep -r -i "password\s*=\s*['\"][^'\"]*['\"]" .github/ || \
+             grep -r -i "token\s*=\s*['\"][^'\"]*['\"]" .github/ || \
+             grep -r -i "key\s*=\s*['\"][^'\"]*['\"]" .github/; then
+            echo "❌ Potential secrets found in code"
+            exit 1
+          fi
+          
+          echo "✅ No obvious secrets found"
+
+      - name: Validate Secret References
+        run: |
+          echo "🔍 Validating secret references..."
+          
+          # Check that secrets are properly referenced
+          if grep -r "\${{ secrets\." .github/workflows/ | grep -v "secrets\.[A-Z_][A-Z0-9_]*"; then
+            echo "❌ Invalid secret reference format found"
+            exit 1
+          fi
+          
+          echo "✅ Secret references are properly formatted"

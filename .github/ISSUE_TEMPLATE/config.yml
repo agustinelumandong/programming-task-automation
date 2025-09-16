@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 General Discussion
+    url: https://github.com/your-username/your-repo/discussions
+    about: Ask questions, share ideas, or discuss programming concepts
+  - name: 🐛 Bug Report
+    url: https://github.com/your-username/your-repo/issues/new?template=bug_report.md
+    about: Report issues with the daily challenge system
+  - name: 💡 Feature Request
+    url: https://github.com/your-username/your-repo/issues/new?template=feature_request.md
+    about: Suggest new features or improvements
+  - name: 📚 Challenge Archive
+    url: https://github.com/your-username/your-repo/blob/main/CHALLENGES.md
+    about: Browse all previous daily challenges
