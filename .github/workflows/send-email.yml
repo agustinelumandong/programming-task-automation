@@ -1,0 +1,28 @@
+name: Send Email (Node.js)
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # Runs at midnight UTC
+  workflow_dispatch:
+
+env:
+  GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+  EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
+
+jobs:
+  send-email:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Send Email
+        run: node .github/scripts/send-email.mjs

@@ -1,1 +1,20 @@
-test
+# This file has been replaced by more specific workflow files
+# Please see:
+# - email-automation.yml (basic email automation)
+# - send-email.yml (Node.js based email)
+# - failure-notification.yml (failure alerts)
+# - weekly-report.yml (weekly reports)
+
+name: Deprecated Main Workflow
+
+on:
+  workflow_dispatch:
+
+jobs:
+  notice:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notice
+        run: |
+          echo "This workflow has been replaced by specific email automation workflows."
+          echo "Please use the other workflow files in this directory."

@@ -1,0 +1,49 @@
+name: Weekly Report
+
+on:
+  schedule:
+    - cron: "0 9 * * 1" # Runs every Monday at 9 AM UTC
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  weekly-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Send weekly report
+        uses: dawidd6/action-send-mail@v6
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "📊 Weekly Report - ${{ github.repository }}"
+          html_body: |
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #0366d6;">📊 Weekly Report</h2>
+              <p>Hello! Here's your weekly repository activity report.</p>
+              
+              <div style="background-color: #f6f8fa; padding: 15px; border-radius: 6px; margin: 20px 0;">
+                <h3>Repository Information</h3>
+                <ul>
+                  <li><strong>Repository:</strong> ${{ github.repository }}</li>
+                  <li><strong>Report Date:</strong> ${{ github.run_started_at }}</li>
+                  <li><strong>Latest Commit:</strong> ${{ github.sha }}</li>
+                </ul>
+              </div>
+              
+              <div style="background-color: #e1f5fe; padding: 15px; border-radius: 6px; margin: 20px 0;">
+                <h3>Activity Summary</h3>
+                <p>This report was generated automatically by GitHub Actions.</p>
+                <p>For detailed analytics, visit your repository's Insights tab.</p>
+              </div>
+              
+              <p style="margin-top: 30px; color: #586069; font-size: 12px;">
+                This is an automated weekly report. To modify the schedule or content, 
+                edit the .github/workflows/weekly-report.yml file.
+              </p>
+            </div>
+          to: sean.esparagoza@gmail.com # UPDATE THIS EMAIL ADDRESS
+          from: GitHub Weekly Reports

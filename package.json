@@ -1,0 +1,29 @@
+{
+  "name": "github-email-automation",
+  "version": "1.0.0",
+  "description": "Email automation project using GitHub Actions",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "send-email": "node .github/scripts/send-email.mjs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "nodemailer": "^6.9.0",
+    "dotenv": "^16.0.0"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/programming-task-automation.git"
+  },
+  "keywords": [
+    "github-actions",
+    "email",
+    "automation",
+    "nodejs",
+    "nodemailer"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}

@@ -1,0 +1,35 @@
+name: Failure Notification
+
+on:
+  workflow_run:
+    workflows: ["*"]
+    types:
+      - completed
+
+jobs:
+  notify-on-failure:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    steps:
+      - name: Send failure notification
+        uses: dawidd6/action-send-mail@v6
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "🚨 Workflow Failed: ${{ github.event.workflow_run.name }}"
+          body: |
+            ⚠️ WORKFLOW FAILURE ALERT ⚠️
+
+            Repository: ${{ github.repository }}
+            Workflow: ${{ github.event.workflow_run.name }}
+            Branch: ${{ github.event.workflow_run.head_branch }}
+            Commit: ${{ github.event.workflow_run.head_sha }}
+
+            The workflow run failed. Please check the logs for more details:
+            ${{ github.event.workflow_run.html_url }}
+
+            This is an automated notification from GitHub Actions.
+          to: sean.esparagoza@gmail.com # UPDATE THIS EMAIL ADDRESS
+          from: GitHub Actions Alert System
