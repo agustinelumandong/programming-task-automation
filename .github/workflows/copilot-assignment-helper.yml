@@ -100,7 +100,7 @@ jobs:
               <p style="margin-top: 30px; color: #586069; font-size: 12px;">
                 Repository: ${{ github.repository }}<br>
                 Issue: #${{ github.event.inputs.issue_number }}<br>
-                Assigned: ${{ new Date().toISOString() }}
+                Assigned: ${{ github.run_id }} (Run ID: ${{ github.run_number }})
               </p>
             </div>
           to: sean.esparagoza@gmail.com
