@@ -11,14 +11,20 @@ The system uses **GitHub Copilot's official coding agent** to:
 2. **Solve the problems** it creates autonomously in its GitHub Actions environment
 
 #### Process Flow:
-1. **Problem Generation Request** → Workflows ask Copilot to create programming challenges
-2. **AI Problem Creation** → Copilot generates creative, unique problems with realistic data
+1. **Problem Generation Request** → Workflows create issues asking Copilot to generate challenges
+2. **AI Problem Creation** → Copilot responds with creative, unique problems in issue comments
 3. **Manual Problem Selection** → You choose which generated problems to implement
-4. **Solution Assignment** → Selected problems are assigned back to Copilot for solutions
+4. **Solution Request** → You mention @copilot in new issues or comments for solutions
 5. **AI Solution Development** → Copilot codes, tests, and documents solutions
 6. **Pull Request** → Copilot creates PRs with complete implementations
 7. **Email Notifications** → You receive email alerts at each step
 8. **Review & Merge** → You review and approve the AI-generated solutions
+
+#### Important Note on Copilot Assignment:
+- Copilot cannot be directly assigned as a repository collaborator
+- Instead, we mention @copilot in issue descriptions and comments
+- The workflows create issues with @copilot mentions to get its attention
+- You can manually assign issues to yourself and then mention @copilot for assistance
 
 ## 📧 Email Notification System
 

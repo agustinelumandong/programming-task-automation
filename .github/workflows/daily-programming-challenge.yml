@@ -123,8 +123,7 @@ jobs:
             Possible problem themes: ${topics}, real-world data processing, user interface logic, API data handling, business logic, optimization challenges, data analysis, creative algorithms.
 
             @copilot please create engaging and educational programming challenges that will help developers grow their skills!`,
-              labels: ['copilot-task', 'daily-challenge', 'problem-generation', `day-${day.toLowerCase()}`],
-              assignees: ['copilot']
+              labels: ['copilot-task', 'daily-challenge', 'problem-generation', `day-${day.toLowerCase()}`]
             });
 
             console.log(`Created daily problem generation request #${issue.number} for ${day}`);

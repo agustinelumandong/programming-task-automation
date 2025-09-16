@@ -1,0 +1,107 @@
+name: Copilot Assignment Helper
+
+on:
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: "Issue number to assign to Copilot"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  assign-to-copilot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Add Copilot Assignment Comment
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issueNumber = '${{ github.event.inputs.issue_number }}';
+
+            try {
+              // Add a comment to ping Copilot
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: parseInt(issueNumber),
+                body: `@copilot please work on this issue and provide a complete solution.
+
+                This issue has been flagged for Copilot assistance. Please:
+                1. Analyze the requirements carefully
+                2. Implement a complete solution
+                3. Include comprehensive documentation
+                4. Handle edge cases appropriately
+                5. Provide example usage
+
+                Thank you!`
+              });
+              
+              // Add copilot-assigned label
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: parseInt(issueNumber),
+                labels: ['copilot-assigned', 'awaiting-solution']
+              });
+              
+              console.log(`Successfully pinged Copilot for issue #${issueNumber}`);
+              
+            } catch (error) {
+              console.error('Error assigning to Copilot:', error.message);
+              throw error;
+            }
+
+      - name: Send Assignment Notification
+        uses: dawidd6/action-send-mail@v6
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "🤖 Issue Assigned to Copilot - #${{ github.event.inputs.issue_number }}"
+          html_body: |
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #0366d6;">🤖 Copilot Assignment Successful</h2>
+              <p>Issue #${{ github.event.inputs.issue_number }} has been successfully assigned to GitHub Copilot!</p>
+              
+              <div style="background-color: #e1f5fe; padding: 15px; border-radius: 6px; margin: 20px 0;">
+                <h3>📋 Assignment Details</h3>
+                <ul>
+                  <li><strong>Issue Number:</strong> #${{ github.event.inputs.issue_number }}</li>
+                  <li><strong>Status:</strong> Awaiting Copilot Solution</li>
+                  <li><strong>Labels Added:</strong> copilot-assigned, awaiting-solution</li>
+                </ul>
+              </div>
+              
+              <div style="background-color: #d4edda; padding: 15px; border-radius: 6px; margin: 20px 0;">
+                <h3>⏰ What Happens Next</h3>
+                <p>1. Copilot will analyze the issue requirements</p>
+                <p>2. A solution will be implemented and tested</p>
+                <p>3. A pull request will be created with the implementation</p>
+                <p>4. You'll receive a notification when the solution is ready</p>
+              </div>
+              
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="https://github.com/${{ github.repository }}/issues/${{ github.event.inputs.issue_number }}" 
+                   style="background-color: #0366d6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+                  📖 View Issue
+                </a>
+              </div>
+              
+              <p style="margin-top: 30px; color: #586069; font-size: 12px;">
+                Repository: ${{ github.repository }}<br>
+                Issue: #${{ github.event.inputs.issue_number }}<br>
+                Assigned: ${{ new Date().toISOString() }}
+              </p>
+            </div>
+          to: sean.esparagoza@gmail.com
+          from: GitHub Copilot Assignment System

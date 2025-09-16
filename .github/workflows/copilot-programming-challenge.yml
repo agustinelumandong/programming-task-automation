@@ -102,8 +102,7 @@ jobs:
             Topics you could explore: ${topic}, data structures, algorithms, problem-solving patterns, real-world scenarios.
 
             @copilot please generate creative and educational programming problems based on these requirements.`,
-              labels: ['copilot-task', 'problem-generation', `topic-${topic.replace(/\s+/g, '-').toLowerCase()}`, `difficulty-${difficulty.toLowerCase()}`],
-              assignees: ['copilot']
+              labels: ['copilot-task', 'problem-generation', `topic-${topic.replace(/\s+/g, '-').toLowerCase()}`, `difficulty-${difficulty.toLowerCase()}`]
             });
 
             console.log('Created problem generation request #' + issue.number);
